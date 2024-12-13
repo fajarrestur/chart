@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penjualan Tahunan Bricket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f9;
+        }
+        .chart-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        svg {
+            width: 300px;
+            height: 300px;
+        }
+        .legend {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .legend-item {
+            margin: 5px 10px;
+            display: flex;
+            align-items: center;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+        .table-container {
+            width: 80%;
+            max-width: 800px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container">
+        <h2>Penjualan Tahunan Bricket</h2>
+        <svg viewBox="0 0 32 32">
+            <!-- Donut chart segments will be dynamically generated here -->
+        </svg>
+        <div class="legend" id="legend">
+            <!-- Legend will be dynamically generated here -->
+        </div>
+    </div>
+
+    <div class="table-container">
+        <h2>Data Penjualan</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Bulan</th>
+                    <th>Penjualan (dalam ton)</th>
+                </tr>
+            </thead>
+            <tbody id="salesTable">
+                <!-- Rows will be dynamically generated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const salesData = [12, 19, 15, 20, 25, 18, 24, 30, 22, 27, 23, 28];
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const colors = [
+            '#ff6384', '#36a2eb', '#cc65fe', '#ffce56', '#4bc0c0', '#9966ff',
+            '#ff9f40', '#66ff66', '#ff6666', '#66b2ff', '#c44dff', '#ff9966'
+        ];
+
+        // Generate donut chart
+        const svg = document.querySelector('svg');
+        const legendContainer = document.getElementById('legend');
+        const totalSales = salesData.reduce((a, b) => a + b, 0);
+
+        let cumulativePercentage = 0;
+
+        salesData.forEach((sales, index) => {
+            const percentage = sales / totalSales;
+
+            const startAngle = cumulativePercentage * 360;
+            cumulativePercentage += percentage;
+            const endAngle = cumulativePercentage * 360;
+
+            const largeArcFlag = percentage > 0.5 ? 1 : 0;
+
+            const startX = 16 + 16 * Math.cos((startAngle - 90) * (Math.PI / 180));
+            const startY = 16 + 16 * Math.sin((startAngle - 90) * (Math.PI / 180));
+
+            const endX = 16 + 16 * Math.cos((endAngle - 90) * (Math.PI / 180));
+            const endY = 16 + 16 * Math.sin((endAngle - 90) * (Math.PI / 180));
+
+            const pathData = `M16,16 L${startX},${startY} A16,16 0 ${largeArcFlag} 1 ${endX},${endY} Z`;
+
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', pathData);
+            path.setAttribute('fill', colors[index]);
+            svg.appendChild(path);
+
+            // Generate legend
+            const legendItem = document.createElement('div');
+            legendItem.className = 'legend-item';
+
+            const legendColor = document.createElement('div');
+            legendColor.className = 'legend-color';
+            legendColor.style.backgroundColor = colors[index];
+
+            const legendText = document.createElement('span');
+            legendText.textContent = `${months[index]} (${sales} ton)`;
+
+            legendItem.appendChild(legendColor);
+            legendItem.appendChild(legendText);
+            legendContainer.appendChild(legendItem);
+        });
+
+        // Generate table rows
+        const salesTable = document.getElementById('salesTable');
+
+        months.forEach((month, index) => {
+            const row = document.createElement('tr');
+            const monthCell = document.createElement('td');
+            monthCell.textContent = month;
+
+            const salesCell = document.createElement('td');
+            salesCell.textContent = salesData[index];
+
+            row.appendChild(monthCell);
+            row.appendChild(salesCell);
+            salesTable.appendChild(row);
+        });
+    </script>
+</body>
+</html>
